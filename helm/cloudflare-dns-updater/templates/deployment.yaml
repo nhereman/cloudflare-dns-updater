@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflare-dns-updater
+  labels:
+    app: cdu
+spec:
+  replica: 1
+  selector:
+    matchLabels:
+      app: cdu
+  template:
+    metadata:
+      labels:
+        app: cdu
+    spec:
+      containers:
+        - name: app
+          image: nhereman/cloudflare-dns-updater:latest
+          env:
+            - name: CDU_CONFIGURATION_FILE
+              value: "/home/config/config.json"
+            - name: CDU_EXEC_INTERVAL
+              value: "{{ .Values.interval | default 60 }}"
+          envFrom:
+            - secretRef:
+                name: cloudflare-dns-updater
+          volumeMounts:
+            - mountPath: /home/config
+              name: config
+      volumes:
+        - name: config
+          configMap:
+            name: cloudflare-dns-updater
+            items:
+              - key: config.json
+                path: config.json

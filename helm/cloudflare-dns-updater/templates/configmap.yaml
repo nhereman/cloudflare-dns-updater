@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflare-dns-updater
+data:
+  config.json: |
+    {
+    "zone": "{{ .Values.cloudflare.zone }}",
+    "record": "{{ .Values.cloudflare.record }}",
+    "domain": "{{ .Values.cloudflare.domain }}"
+    }
