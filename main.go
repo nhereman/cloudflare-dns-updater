@@ -1,7 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/nhereman/cloudflare-dns-updater/ip"
+)
 
 func main() {
-	fmt.Println("Test")
+	publicIP, err := ip.Query()
+	if err != nil {
+		fmt.Println("ERROR:", err)
+	}
+
+	fmt.Println(publicIP)
 }
