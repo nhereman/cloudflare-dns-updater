@@ -57,6 +57,25 @@ func Load(configurationFile string) (Configuration, error) {
 	return configuration, nil
 }
 
+func Verify(configuration Configuration) error {
+	if configuration.DomainName == "" {
+		return errors.New("domain configuration missing")
+	}
+	if configuration.DNSRecordID == "" {
+		return errors.New("record configuration missing")
+	}
+	if configuration.Email == "" {
+		return errors.New("email configuration missing")
+	}
+	if configuration.CloudflareAPIKey == "" {
+		return errors.New("api_key configuration missing")
+	}
+	if configuration.ZoneID == "" {
+		return errors.New("zone configuration missing")
+	}
+	return nil
+}
+
 func loadFromFile(configurationFile string) (Configuration, error) {
 	if configurationFile == "" {
 		return Configuration{}, nil

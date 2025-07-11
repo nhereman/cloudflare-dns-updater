@@ -10,11 +10,22 @@ import (
 )
 
 func main() {
-	configurationFile := "/home/nhereman/.config/cloudflare-dns-updater/config.json"
-	configuration, err := configuration.Load(configurationFile)
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Println("ERROR: failed to retrieve user home directory \n\t", err)
+		os.Exit(1)
+	}
+
+	configFile := userHomeDir + "/.config/cloudflare-dns-updater/config.json"
+	config, err := configuration.Load(configFile)
 	if err != nil {
 		fmt.Println("ERROR:", err)
 		os.Exit(1)
+	}
+
+	err = configuration.Verify(config)
+	if err != nil {
+		fmt.Println("ERROR:", err)
 	}
 
 	publicIP, err := ip.Query()
@@ -24,18 +35,18 @@ func main() {
 	}
 
 	cloudflareAuth := cloudflare.CFAuth{
-		Email:  configuration.Email,
-		APIKey: configuration.CloudflareAPIKey,
+		Email:  config.Email,
+		APIKey: config.CloudflareAPIKey,
 	}
 
-	record, err := cloudflare.GetRecord(cloudflareAuth, configuration.ZoneID, configuration.DNSRecordID)
+	record, err := cloudflare.GetRecord(cloudflareAuth, config.ZoneID, config.DNSRecordID)
 	if err != nil {
 		fmt.Println("ERROR:", err)
 		os.Exit(1)
 	}
 
-	if record.Domain != configuration.DomainName {
-		fmt.Println("ERROR:", "The domain configured ("+configuration.DomainName+") is not aligned with the one of the record ("+record.Domain+")")
+	if record.Domain != config.DomainName {
+		fmt.Println("ERROR:", "The domain configured ("+config.DomainName+") is not aligned with the one of the record ("+record.Domain+")")
 		os.Exit(1)
 	}
 
@@ -46,7 +57,7 @@ func main() {
 
 	record.IP = publicIP
 
-	err = cloudflare.SetRecord(cloudflareAuth, configuration.ZoneID, configuration.DNSRecordID, record)
+	err = cloudflare.SetRecord(cloudflareAuth, config.ZoneID, config.DNSRecordID, record)
 	if err != nil {
 		fmt.Println("ERROR:", err)
 		os.Exit(1)
