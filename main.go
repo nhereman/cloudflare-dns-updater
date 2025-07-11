@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/nhereman/cloudflare-dns-updater/cloudflare"
@@ -10,28 +10,27 @@ import (
 )
 
 func main() {
+	log.Print("INFO: executing cloudflare-dns-updater")
+
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
-		fmt.Println("ERROR: failed to retrieve user home directory \n\t", err)
-		os.Exit(1)
+		log.Fatal("ERROR: failed to retrieve user home directory", err)
 	}
 
 	configFile := userHomeDir + "/.config/cloudflare-dns-updater/config.json"
 	config, err := configuration.Load(configFile)
 	if err != nil {
-		fmt.Println("ERROR:", err)
-		os.Exit(1)
+		log.Fatal("ERROR: failed to load configuration", err)
 	}
 
 	err = configuration.Verify(config)
 	if err != nil {
-		fmt.Println("ERROR:", err)
+		log.Fatal("ERROR: configuration is incorrect", err)
 	}
 
 	publicIP, err := ip.Query()
 	if err != nil {
-		fmt.Println("ERROR:", err)
-		os.Exit(1)
+		log.Fatal("ERROR: failed to get public IP", err)
 	}
 
 	cloudflareAuth := cloudflare.CFAuth{
@@ -41,17 +40,15 @@ func main() {
 
 	record, err := cloudflare.GetRecord(cloudflareAuth, config.ZoneID, config.DNSRecordID)
 	if err != nil {
-		fmt.Println("ERROR:", err)
-		os.Exit(1)
+		log.Fatal("ERROR: failed to get DNS record from cloudflare", err)
 	}
 
 	if record.Domain != config.DomainName {
-		fmt.Println("ERROR:", "The domain configured ("+config.DomainName+") is not aligned with the one of the record ("+record.Domain+")")
-		os.Exit(1)
+		log.Fatal("ERROR: the domain configured (" + config.DomainName + ") is not aligned with the one of the record (" + record.Domain + ")")
 	}
 
 	if record.IP == publicIP {
-		fmt.Println("INFO: public IP is already configured correctly. Stopping here.")
+		log.Print("INFO: public IP is already configured correctly. Stopping here.")
 		os.Exit(0)
 	}
 
@@ -59,7 +56,8 @@ func main() {
 
 	err = cloudflare.SetRecord(cloudflareAuth, config.ZoneID, config.DNSRecordID, record)
 	if err != nil {
-		fmt.Println("ERROR:", err)
-		os.Exit(1)
+		log.Fatal("ERROR: failed to request a modification of the DNS record")
 	}
+
+	log.Print("INFO: DNS Record Updated with following IP: " + record.IP)
 }
