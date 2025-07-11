@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 
@@ -12,12 +13,20 @@ import (
 func main() {
 	log.Print("INFO: executing cloudflare-dns-updater")
 
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatal("ERROR: failed to retrieve user home directory", err)
+	var configFile string
+	flag.StringVar(&configFile, "c", "", "Specify configuration file path. Default: ~/.config/cloudflare-dns-updater/config.json")
+	flag.Parse()
+
+	if configFile == "" {
+		userHomeDir, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal("ERROR: failed to retrieve user home directory", err)
+		}
+		configFile = userHomeDir + "/.config/cloudflare-dns-updater/config.json"
 	}
 
-	configFile := userHomeDir + "/.config/cloudflare-dns-updater/config.json"
+	log.Print("INFO: configuration file:", configFile)
+
 	config, err := configuration.Load(configFile)
 	if err != nil {
 		log.Fatal("ERROR: failed to load configuration", err)
