@@ -15,14 +15,12 @@ func main() {
 		fmt.Println("ERROR:", err)
 		return
 	}
-	fmt.Println("Configuration:", configuration)
 
 	publicIP, err := ip.Query()
 	if err != nil {
 		fmt.Println("ERROR:", err)
 		return
 	}
-	fmt.Println("ip: ", publicIP)
 
 	cloudflareAuth := cloudflare.CFAuth{
 		Email:  configuration.Email,
@@ -45,5 +43,11 @@ func main() {
 		return
 	}
 
-	fmt.Println("Record:", record)
+	record.IP = publicIP
+
+	err = cloudflare.SetRecord(cloudflareAuth, configuration.ZoneID, configuration.DNSRecordID, record)
+	if err != nil {
+		fmt.Println("ERROR:", err)
+		return
+	}
 }
