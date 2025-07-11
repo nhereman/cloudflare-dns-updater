@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/nhereman/cloudflare-dns-updater/cloudflare"
 	"github.com/nhereman/cloudflare-dns-updater/configuration"
@@ -13,13 +14,13 @@ func main() {
 	configuration, err := configuration.Load(configurationFile)
 	if err != nil {
 		fmt.Println("ERROR:", err)
-		return
+		os.Exit(1)
 	}
 
 	publicIP, err := ip.Query()
 	if err != nil {
 		fmt.Println("ERROR:", err)
-		return
+		os.Exit(1)
 	}
 
 	cloudflareAuth := cloudflare.CFAuth{
@@ -30,17 +31,17 @@ func main() {
 	record, err := cloudflare.GetRecord(cloudflareAuth, configuration.ZoneID, configuration.DNSRecordID)
 	if err != nil {
 		fmt.Println("ERROR:", err)
-		return
+		os.Exit(1)
 	}
 
 	if record.Domain != configuration.DomainName {
 		fmt.Println("ERROR:", "The domain configured ("+configuration.DomainName+") is not aligned with the one of the record ("+record.Domain+")")
-		return
+		os.Exit(1)
 	}
 
 	if record.IP == publicIP {
 		fmt.Println("INFO: public IP is already configured correctly. Stopping here.")
-		return
+		os.Exit(0)
 	}
 
 	record.IP = publicIP
@@ -48,6 +49,6 @@ func main() {
 	err = cloudflare.SetRecord(cloudflareAuth, configuration.ZoneID, configuration.DNSRecordID, record)
 	if err != nil {
 		fmt.Println("ERROR:", err)
-		return
+		os.Exit(1)
 	}
 }
