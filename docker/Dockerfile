@@ -14,7 +14,7 @@ FROM alpine:3.22.0
 
 WORKDIR /home
 
-ENV CDU_CONFIGURATION_FILE=/home/config.json
+ENV CDU_CONFIGURATION_FILES=/home/config.json
 
 ENV CDU_EXEC_INTERVAL=60
 
