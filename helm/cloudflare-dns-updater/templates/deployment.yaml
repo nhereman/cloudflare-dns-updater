@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: nhereman/cloudflare-dns-updater:latest
+          image: nhereman/cloudflare-dns-updater:1.0.0
           env:
             - name: CDU_CONFIGURATION_FILES
               value: |
