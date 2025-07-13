@@ -18,8 +18,11 @@ spec:
         - name: app
           image: nhereman/cloudflare-dns-updater:latest
           env:
-            - name: CDU_CONFIGURATION_FILE
-              value: "/home/config/config.json"
+            - name: CDU_CONFIGURATION_FILES
+              value: |
+{{- range $i, $record := .Values.cloudflare.records }}
+                /home/config/config_{{ $i }}.json
+{{- end }}
             - name: CDU_EXEC_INTERVAL
               value: "{{ .Values.interval | default 60 }}"
           envFrom:
@@ -33,5 +36,7 @@ spec:
           configMap:
             name: cloudflare-dns-updater
             items:
-              - key: config.json
-                path: config.json
+{{- range $i, $record := .Values.cloudflare.records }}
+              - key: config_{{ $i }}.json
+                path: config_{{ $i }}.json
+{{- end }}

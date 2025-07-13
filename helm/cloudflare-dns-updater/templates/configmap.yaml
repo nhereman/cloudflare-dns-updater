@@ -3,9 +3,11 @@ kind: ConfigMap
 metadata:
   name: cloudflare-dns-updater
 data:
-  config.json: |
+{{- range $i, $record := .Values.cloudflare.records }}
+  config_{{ $i }}.json: |
     {
-    "zone": "{{ .Values.cloudflare.zone }}",
-    "record": "{{ .Values.cloudflare.record }}",
-    "domain": "{{ .Values.cloudflare.domain }}"
+    "zone": "{{ $.Values.cloudflare.zone }}",
+    "record": "{{ $record.id }}",
+    "domain": "{{ $record.name }}"
     }
+{{- end }}
