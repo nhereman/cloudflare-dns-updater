@@ -1,0 +1,11 @@
+apiVersion: v1
+entries:
+  cloudflare-dns-updater:
+  - apiVersion: v2
+    created: "2025-07-14T15:11:55.530511669+02:00"
+    digest: 9075ceb0187c141dbd7d51d84d68624eedbf3038e8895177ef225f3b0eefdbed
+    name: cloudflare-dns-updater
+    urls:
+    - https://nhereman.github.io/cloudflare-dns-updater/cloudflare-dns-updater-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-07-14T15:11:55.530223295+02:00"
